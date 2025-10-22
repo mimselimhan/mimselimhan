@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selimhan Saldamlı - Kişisel Portföy</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Inter font for better typography */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; 
+            overflow-x: hidden;
+        }
+        
+        /* Animasyon Keyframes */
+        @keyframes dropIn {
+            0% { transform: translateY(-100vh) rotate(-10deg); opacity: 0; }
+            100% { transform: translateY(0) rotate(-3deg); opacity: 1; }
+        }
+        @keyframes slideInRight {
+            0% { transform: translateX(100vw); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Başlangıç (Gizli ve Hazır) Stiller */
+        .initial-image-state {
+            transform: translateY(-100vh) rotate(-10deg);
+            opacity: 0;
+            transition: transform 0.3s ease-in-out; 
+        }
+        .initial-text-state {
+            /* Metnin başlangıçta ekranın sağında olmasını sağlar */
+            transform: translateX(100vw);
+            opacity: 0;
+        }
+
+        /* Animasyonlu Sınıflar */
+        .animate-dropIn {
+            animation: dropIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .animate-slideInRight {
+            animation: slideInRight 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation-delay: 0.5s; 
+        }
+
+        /* Global Stiller */
+        .section-header {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2.5rem;
+            border-bottom: 2px solid #cbd5e1; 
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        #anasayfa {
+            min-height: 100vh;
+        }
+
+        /* Image and Text Styling */
+        .animated-image-container {
+            transition: transform 0.3s ease-in-out;
+            /* Animasyon bittiğinde bu stiller korunur ve kaydırma efekti başlar */
+        }
+        .animated-image-container:hover {
+             transform: rotate(0deg) scale(1.03); 
+        }
+
+        .animated-text-container {
+            z-index: 10; 
+            position: relative; 
+            margin-left: -5rem; 
+            /* Kaydırma efekti için gerekli transition ekleniyor */
+            transition: transform 0.1s linear;
+        }
+        
+        @media (max-width: 768px) {
+            .animated-text-container {
+                margin-left: 0;
+                margin-top: -3rem;
+            }
+        }
+
+        /* Tüm bölümler için minimalist, kutusuz tasarım */
+        .minimalist-section-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        /* Çalışmalar Bölümü Özel Stilleri (Kaydırma Mantığı) */
+        .work-gallery {
+            display: flex;
+            overflow-x: scroll;
+            gap: 2rem;
+            padding: 1rem 0;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .work-gallery::-webkit-scrollbar {
+            display: none;
+        }
+
+        .work-card {
+            flex-shrink: 0;
+            width: 350px;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        .work-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .work-card-text {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 1rem;
+            font-size: 1rem;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Firebase Configuration and Auth (Mandatory Block for Compatibility) -->
+    <script type="module">
+        // Bu blok, Canvas ortamının gerektirdiği Firebase ayarlarıdır. 
+        // Şimdilik statik bir HTML olduğu için Firestore kullanılmamaktadır.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global değişkenleri kullanma
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        if (Object.keys(firebaseConfig).length > 0) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+                
+                // Oturum açma
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken).catch(error => console.error("Firebase Custom Token Sign-In Error:", error));
+                } else {
+                    signInAnonymously(auth).catch(error => console.error("Firebase Anonymous Sign-In Error:", error));
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("Kullanıcı kimliği:", user.uid);
+                    } else {
+                        console.log("Kullanıcı çıkış yaptı veya anonim.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase başlatılırken hata oluştu:", error);
+            }
+        } else {
+            console.log("Firebase konfigürasyonu bulunamadı.");
+        }
+    </script>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto">
+
+        <!-- 1. ANASAYFA (Hero Section - Minimalist Design) -->
+        <section id="anasayfa" class="relative min-h-screen flex items-center justify-center bg-gray-50 p-4 md:p-12">
+
+            <!-- Top Left Menu / Branding -->
+            <div class="absolute top-8 left-8 text-left text-sm font-medium space-y-2 z-10">
+                <a href="#anasayfa" class="block text-xl font-bold text-gray-800 hover:text-blue-600 transition">SELİMHAN SALDAMLI - MİMAR</a>
+                <!-- Görseldeki gibi sade menü -->
+                <a href="#deneyim" class="block text-gray-600 hover:text-blue-600 transition">Deneyim</a>
+                <a href="#hakkimda" class="block text-gray-600 hover:text-blue-600 transition">Hakkımda</a>
+                <a href="#calismalar" class="block text-gray-600 hover:text-blue-600 transition">Bazı Çalışmalar</a>
+                <a href="#egitim" class="block text-gray-600 hover:text-blue-600 transition">Eğitim</a>
+            </div>
+
+            <!-- Top Right Contact -->
+            <!-- Mail adresi güncellendi ve İletişim bölümüne yönlendirildi -->
+            <a href="#iletisim" class="absolute top-8 right-8 text-sm text-gray-600 hover:text-blue-600 transition z-10">
+                mimselimhan@gmail.com
+            </a>
+
+            <!-- Bottom Right CTA (Bana Ulaşın) -->
+            <a href="#iletisim" class="absolute bottom-8 right-8 text-sm text-gray-800 font-bold hover:text-blue-600 transition z-10">
+                Bana Ulaşın
+            </a>
+            
+            <!-- Centered Content (Image & Name) -->
+            <div class="flex flex-col md:flex-row items-center max-w-5xl w-full pt-20 pb-20 md:pt-0 md:pb-0">
+                <!-- Image Column (Left) -->
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end mb-8 md:mb-0">
+                    <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
+                    <div id="hero-image" class="animated-image-container initial-image-state">
+                        <img src="https://raw.githubusercontent.com/username/repo/main/selimhan_profile.png"
+                             alt="Selimhan Saldamlı Minimalist Portre"
+                             class="shadow-xl object-cover rounded-xl"
+                             style="height: 550px; width: 350px; max-width: 100%;">
+                    </div>
+                </div>
+
+                <!-- Text Column (Right) - Text now moves parallelly to the left and slightly over the image -->
+                <div class="w-full md:w-1/2 md:pl-16 text-center md:text-left">
+                     <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
+                    <div id="hero-text" class="animated-text-container initial-text-state">
+                        <h1 class="text-7xl sm:text-8xl lg:text-9xl font-extrabold leading-none text-gray-900 mb-6">
+                            Selimhan<br>Saldamlı
+                        </h1>
+                        <a href="#calismalar" class="text-xl font-bold text-blue-600 hover:text-blue-800 transition duration-300">
+                            Projelerimi Görüntüle >>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Diğer Bölümler Ana İçerik Akışına Devam Ediyor -->
+        
+        <!-- 2. HAKKIMDA (About Section - Minimalist Design) -->
+        <section id="hakkimda" class="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <h2 class="section-header">Hakkımda</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div class="lg:col-span-2">
+                    <p class="text-xl leading-relaxed mb-6 font-medium">
+                        Bilgisayara ve planlama konularına hakim olduğum, araştırmacı ve öğrenmeye açık bir yapım olduğu için bilmediğim dallardaki öğrenilmesi gereken yetileri kolaylıkla öğrenebilmekteyim.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-6 border-b pb-6 border-gray-100">
+                        Takım çalışmasına yatkın, disiplinler arası iletişimde kuvvetli, iş yönetimi ve takibi konularında deneyimli bir mimarım. Yüksek analitik düşünce yapım sayesinde detaylı proje çözümlerine odaklanırım.
+                    </p>
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Beceri ve Programlar</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Photoshop</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">3ds Max</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Autocad</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">İdecad</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Lumion</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Corona / Vray</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Unreal Engine</span>
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1.5 rounded-full">Yapay Zeka İçerik Üretme</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kişisel Bilgiler - Telefon ve DT kaldırıldı, sadece Mail ve Konum kaldı. Instagram eklendi. -->
+                <div class="lg:col-span-1 border-l pl-8 border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">İletişim & Detaylar</h3>
+                    <ul class="space-y-3 text-lg">
+                        <li class="flex justify-between">
+                            <span class="font-medium text-gray-500">E-posta:</span>
+                            <span class="text-blue-600">mimselimhan@gmail.com</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="font-medium text-gray-500">Adres:</span>
+                            <span class="text-gray-900">Bursa</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="font-medium text-gray-500">Instagram:</span>
+                            <span class="text-blue-600">@arcsldml</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="font-medium text-gray-500">Askerlik:</span>
+                            <span class="text-gray-900">Yapıldı</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="font-medium text-gray-500">İngilizce:</span>
+                            <span class="text-gray-900">B1 Seviyesi</span>
+                        </li>
+                    </ul>
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">Hobiler</h3>
+                        <ul class="list-disc pl-5 text-gray-700 text-sm space-y-1">
+                            <li>Kayak, futbol, koşu sporları</li>
+                            <li>Yapay zeka ve Tarih</li>
+                            <li>Kültürel ve tarihi geziler, Okumak</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. BAZI ÇALIŞMALAR (Horizontal Carousel Section) -->
+        <section id="calismalar" class="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <h2 class="section-header">Bazı Çalışmalar</h2>
+            
+            <div id="work-gallery-container" class="relative overflow-hidden">
+                <div id="work-gallery" class="work-gallery">
+                    <!-- Kartların sonsuz döngü hissi vermesi için 3 set oluşturuldu -->
+                    <!-- SET 1 -->
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+                    
+                    <!-- SET 2 (Döngü için tekrar) -->
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1-TEKRAR');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2-TEKRAR');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3-TEKRAR');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4-TEKRAR');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5-TEKRAR');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+
+                    <!-- SET 3 (Döngü için tekrar) -->
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1-TEKRAR2');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2-TEKRAR2');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3-TEKRAR2');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4-TEKRAR2');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
+                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5-TEKRAR2');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+                    
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mt-4">Bu kayan galeri, mimari projelerinizden bazılarını sergilemektedir. Farenizi üzerine getirdiğinizde otomatik kaydırma durur.</p>
+        </section>
+
+        <!-- 4. DENEYİM (Experience Section - Minimalist Design) -->
+        <section id="deneyim" class="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <h2 class="section-header">Deneyim (İş Geçmişi)</h2>
+            <div class="relative max-w-4xl mx-auto divide-y divide-gray-200">
+                
+                <!-- Deneyim 1: CREATIVE PROJECT (ASTANA) -->
+                <div class="minimalist-section-item">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Proje Mimarı</h3>
+                        <p class="text-sm text-gray-500">2025 - Günümüz</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">CREATIVE PROJECT (Kazakistan / Astana)</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>Astanada bulunan büyük ölçekli buğday fabrikası ve hastane projelerinde proje mimarı olarak görev almaktayım.</li>
+                    </ul>
+                </div>
+
+                <!-- Deneyim 2: CREATIVE PROJECT (KAZAN) -->
+                <div class="minimalist-section-item">
+                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Proje Mimarı & Ekip Lideri</h3>
+                        <p class="text-sm text-gray-500">2025 (Rusya / Kazan)</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">CREATIVE PROJECT (Rusya / Kazan)</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>Moskova'da bulunan dört adet malikane projesinin konsept aşamasında, proje yürütücülüğünü ve proje planlamasından sorumlu ekip liderliğini yaptım.</li>
+                    </ul>
+                </div>
+
+                <!-- Deneyim 3: KOMOS İNŞAAT -->
+                <div class="minimalist-section-item">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">İnce İşler Şefi</h3>
+                        <p class="text-sm text-gray-500">2023 - 2025 (Muğla / Bodrum)</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">KOMOS İNŞAAT</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>Detayları yüksek projenin koordinasyon ve kontrol görevlerinde bulundum, gerektiği zamanlarda detay çözümleriyle sorunları çözüme ulaştırdım.</li>
+                        <li>Taşeron, şantiye koordinasyonlarını sağladım. Şantiye sürecinin planlanmasından sorumluydum.</li>
+                        <li>Yapılan işlerin kalitesinin ve hakedişlerinin onaylamasını gerçekleştirdim.</li>
+                    </ul>
+                </div>
+                
+                <!-- Deneyim 4: AY YAPI -->
+                <div class="minimalist-section-item">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Proje Yürütücüsü</h3>
+                        <p class="text-sm text-gray-500">2020 - 2023 (Bursa / İnegöl)</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">AY YAPI</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>Çizmiş olduğum yüzü aşkın projenin organizasyonundan sorumlu mimar olarak görev aldım.</li>
+                        <li>Daha çok konut olmakla birlikte, lise, anaokulu, fabrika projeleri de çizdim.</li>
+                    </ul>
+                </div>
+
+                <!-- Deneyim 5: UNSURLAR İNŞAAT -->
+                <div class="minimalist-section-item border-b-0">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Proje Mimarı</h3>
+                        <p class="text-sm text-gray-500">2019 - 2020 (Kocaeli / Gebze)</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">UNSURLAR İNŞAAT</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2 text-sm">
+                        <li>Mimari projelerin çizilmesini ve tüm belediye süreçlerinin takibini yaptım.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+        
+        <!-- 5. EĞİTİM (Education Section - Minimalist Design) -->
+        <section id="egitim" class="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <h2 class="section-header">Eğitim</h2>
+            <div class="divide-y divide-gray-200">
+                
+                <!-- Eğitim 1: Lisans -->
+                <div class="minimalist-section-item">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">Mimarlık Lisans</h3>
+                        <p class="text-sm text-gray-500">2014 - 2018</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">Gebze Teknik Üniversitesi</p>
+                </div>
+
+                <!-- Eğitim 2: Hazırlık -->
+                <div class="minimalist-section-item border-b-0">
+                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                        <h3 class="text-xl font-bold text-gray-900">İngilizce Hazırlık</h3>
+                        <p class="text-sm text-gray-500">2013 - 2014</p>
+                    </div>
+                    <p class="text-blue-600 font-medium mb-3">Gebze Teknik Üniversitesi</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. İLETİŞİM (Contact Section - Minimalist Design) -->
+        <section id="iletisim" class="py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <h2 class="section-header">İletişim</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <!-- İletişim Bilgileri -->
+                <div class="space-y-6">
+                    <p class="text-lg text-gray-700 border-b pb-4 border-gray-100">
+                        Proje teklifleri, iş birlikleri veya sadece merhaba demek için aşağıda belirtilen kanallardan bana ulaşabilirsiniz. Size en kısa sürede geri dönüş yapacağım.
+                    </p>
+                    <div class="flex items-center space-x-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span class="text-lg font-medium text-gray-700">mimselimhan@gmail.com</span>
+                    </div>
+                    <!-- Telefon kaldırıldı -->
+                    <div class="flex items-center space-x-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span class="text-lg font-medium text-gray-700">Bursa, Türkiye</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.982 9.07A7.5 7.5 0 0012 2C7.306 2 3 6.306 3 12s4.306 10 9 10 9-4.306 9-10c0-1.874-.632-3.66-1.685-5.183l-.004-.007zM12 18a6 6 0 110-12 6 6 0 010 12z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.982 9.07A7.5 7.5 0 0012 2C7.306 2 3 6.306 3 12s4.306 10 9 10 9-4.306 9-10c0-1.874-.632-3.66-1.685-5.183l-.004-.007zM12 18a6 6 0 110-12 6 6 0 010 12z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                        <span class="text-lg font-medium text-gray-700"><a href="https://www.instagram.com/arcsldml" target="_blank" class="text-blue-600 hover:text-blue-800 transition">Instagram: @arcsldml</a></span>
+                    </div>
+                </div>
+
+                <!-- İletişim Formu -->
+                <div class="bg-white p-8 rounded-xl border border-gray-100">
+                    <form action="#" method="POST" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Adınız Soyadınız</label>
+                            <input type="text" name="name" id="name" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Selimhan Saldamlı">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">E-posta Adresiniz</label>
+                            <input type="email" name="email" id="email" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="ornek@mail.com">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700">Mesajınız</label>
+                            <textarea name="message" id="message" rows="4" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Proje detaylarını buraya yazabilirsiniz..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
+                            Mesajı Gönder
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-sm">&copy; 2025 Selimhan Saldamlı. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Dynamic Functions -->
+    <script>
+        const heroSection = document.getElementById('anasayfa');
+        const heroImage = document.getElementById('hero-image');
+        const heroText = document.getElementById('hero-text');
+        const gallery = document.getElementById('work-gallery');
+
+        let scrollInterval;
+        const scrollSpeed = 1.5; // Çalışmalar: Hız 0.5'ten 1.5'e çıkarıldı (3 kat hızlandı)
+        let animationCompleted = false; // Animasyonun bir kez çalışıp çalışmadığını kontrol eden bayrak
+
+        // Başlangıç Transform değerleri (CSS animasyonunun bittiği son durum)
+        const FINAL_IMAGE_ROTATE = -3; // degrees
+        const INITIAL_IMAGE_Y_VH = -100; // vh (CSS başlangıç pozisyonu)
+        const INITIAL_IMAGE_R_DEG = -10; // degrees (CSS başlangıç pozisyonu)
+        const INITIAL_TEXT_X_VW = 100; // vw (CSS başlangıç pozisyonu)
+
+        // Ana sayfanın yüksekliği
+        let heroHeight = 0;
+
+        // 1. Ana Sayfa Animasyonunu Tetikleyen Fonksiyon (İlk Kez Çalışma)
+        function triggerHeroAnimation(isIntersecting) {
+            if (isIntersecting && !animationCompleted) {
+                // Animasyonu tetikle
+                heroImage.classList.remove('initial-image-state');
+                heroText.classList.remove('initial-text-state');
+
+                void heroImage.offsetWidth; 
+                void heroText.offsetWidth;
+
+                heroImage.classList.add('animate-dropIn');
+                heroText.classList.add('animate-slideInRight');
+
+                setTimeout(() => {
+                    animationCompleted = true;
+                    // Animasyon bittiğinde JS kaydırma efektini başlat
+                    document.addEventListener('scroll', handleScrollEffect);
+                    heroHeight = heroSection.offsetHeight;
+                    
+                    // Animasyon bittiğinde, hover efektinin çalışması için 
+                    // animasyon sınıflarını kaldırmak ve son durumu stil olarak korumak gerekir.
+                    // Bu, CSS'teki `forwards` ile sağlanır, ancak hover'ı kolaylaştırmak için
+                    // transition kaldırıldı (CSS'te var).
+                }, 2000); 
+                
+                heroObserver.unobserve(heroSection);
+            }
+        }
+        
+        // 2. Sayfayı Kaydırdıkça Geri Dönme/Sarılma Efekti (Paralaks benzeri)
+        function handleScrollEffect() {
+            if (!animationCompleted) return;
+
+            const scrollY = window.scrollY;
+            const scrollRatio = Math.min(scrollY / heroHeight, 1); // 0.0'dan 1.0'a gider
+            
+            // Görsel Geri Dönüşü: FINAL_STATE -> INITIAL_STATE
+            // Animasyonun son durumu (Y=0, R=-3) -> Başlangıç durumu (Y=-100, R=-10)
+            const imgY = 0 + (INITIAL_IMAGE_Y_VH * scrollRatio); 
+            const imgR = FINAL_IMAGE_ROTATE + ((INITIAL_IMAGE_R_DEG - FINAL_IMAGE_ROTATE) * scrollRatio);
+
+            // Metin Geri Dönüşü: FINAL_STATE -> INITIAL_STATE
+            // Animasyonun son durumu (X=0) -> Başlangıç durumu (X=100)
+            const textX = 0 + (INITIAL_TEXT_X_VW * scrollRatio); 
+
+            // Değerleri uygula
+            heroImage.style.transform = `translateY(${imgY}vh) rotate(${imgR}deg)`;
+            heroText.style.transform = `translateX(${textX}vw)`;
+        }
+
+
+        // Intersection Observer ile animasyonu izle (Sadece ilk kez tetiklemek için)
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                triggerHeroAnimation(entry.isIntersecting);
+            });
+        }, {
+            threshold: 0.1 
+        });
+
+        // 3. Yatay Kaydırma (Sonsuz Döngü Hissi)
+        function startScrolling() {
+            if (scrollInterval) return;
+
+            // Galeri içeriğinin piksel cinsinden toplam genişliği
+            const totalContentWidth = gallery.scrollWidth / 3;
+
+            const scrollStep = () => {
+                // Sağa doğru kaydır
+                gallery.scrollLeft += scrollSpeed;
+
+                // Eğer kaydırma çubuğu ilk setin sonuna ulaştıysa (döngü noktası)
+                if (gallery.scrollLeft >= totalContentWidth) {
+                    gallery.scrollLeft -= totalContentWidth;
+                }
+            };
+
+            scrollInterval = setInterval(scrollStep, 1000 / 60);
+        }
+
+        function stopScrolling() {
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+        }
+
+        // Event Listener'lar
+        document.addEventListener('DOMContentLoaded', () => {
+             // 1. Ana Sayfa Observer'ı Başlat
+             heroObserver.observe(heroSection);
+             
+             // 2. Kaydırma Galerisi Event'ları
+             const galleryContainer = document.getElementById('work-gallery-container');
+             galleryContainer.addEventListener('mouseenter', stopScrolling);
+             galleryContainer.addEventListener('mouseleave', startScrolling);
+             
+             // Sayfa yüklendiğinde kaydırmayı başlat
+             startScrolling();
+
+             // Smooth Scroll
+             document.querySelector('a[href="#iletisim"]').addEventListener('click', function(e) {
+                 if (this.href.includes('#iletisim')) {
+                     e.preventDefault();
+                     document.getElementById('iletisim').scrollIntoView({ behavior: 'smooth' });
+                 }
+             });
+        
+             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                 anchor.addEventListener('click', function (e) {
+                     e.preventDefault();
+                     const targetElement = document.querySelector(this.hash);
+                     if (targetElement) {
+                         targetElement.scrollIntoView({ behavior: 'smooth' });
+                     }
+                 });
+             });
+        });
+        
+        // İlk yüklemede animasyonu manuel olarak bir kez tetikle
+        window.addEventListener('load', () => {
+             if (heroObserver && heroSection) {
+                 // İlk görünümü kontrol et
+                 const rect = heroSection.getBoundingClientRect();
+                 if (rect.top >= 0 && rect.top <= window.innerHeight && !animationCompleted) {
+                    triggerHeroAnimation(true);
+                 }
+             }
+        });
+
+    </script>
+</body>
+</html>
