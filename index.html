@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selimhan Saldamlı - Kişisel Portföy</title>
+    <title>Selimhan Saldamlı - Kişisel Portfolyo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -120,18 +120,7 @@
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
         }
         
-        .work-card-text {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 1rem;
-            font-size: 1rem;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
+        /* Kaldırılan .work-card-text stili */
 
     </style>
 </head>
@@ -210,12 +199,14 @@
             <div class="flex flex-col md:flex-row items-center max-w-5xl w-full pt-20 pb-20 md:pt-0 md:pb-0">
                 <!-- Image Column (Left) -->
                 <div class="w-full md:w-1/2 flex justify-center md:justify-end mb-8 md:mb-0">
-                    <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
+                    <!-- URL sadece dosya adı ile değiştirildi -->
                     <div id="hero-image" class="animated-image-container initial-image-state animate-dropIn">
-                        <img src="https://raw.githubusercontent.com/username/repo/main/selimhan_profile.png"
+                        <!-- Profil görseli URL'si güncellendi -->
+                        <img src="profil.jpg"
                              alt="Selimhan Saldamlı Minimalist Portre"
                              class="shadow-xl object-cover rounded-xl"
-                             style="height: 550px; width: 350px; max-width: 100%;">
+                             style="height: 550px; width: 350px; max-width: 100%;"
+                             onerror="this.onerror=null; this.src='https://placehold.co/350x550/e2e8f0/333333?text=Profil%20Yuklenemedi';"> 
                     </div>
                 </div>
 
@@ -304,31 +295,31 @@
             
             <div id="work-gallery-container" class="relative overflow-hidden">
                 <div id="work-gallery" class="work-gallery">
-                    <!-- Kartların sonsuz döngü hissi vermesi için 3 set oluşturuldu -->
-                    <!-- SET 1 -->
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+                    <!-- SET 1 (URL'ler güncellendi) -->
+                    <div class="work-card" style="background-image: url('calisma1.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma2.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma3.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma4.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma5.png');"></div>
                     
-                    <!-- SET 2 (Döngü için tekrar) -->
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1-TEKRAR');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2-TEKRAR');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3-TEKRAR');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4-TEKRAR');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5-TEKRAR');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+                    <!-- SET 2 (Döngü için aynı isimler kullanıldı ve URL'ler güncellendi) -->
+                    <div class="work-card" style="background-image: url('calisma1.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma2.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma3.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma4.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma5.png');"></div>
 
-                    <!-- SET 3 (Döngü için tekrar) -->
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/4c4c4c/ffffff?text=CALISMA1-TEKRAR2');"><div class="work-card-text">Kazakistan Buğday Fabrikası</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/5a5a5a/ffffff?text=CALISMA2-TEKRAR2');"><div class="work-card-text">Kazakistan Hastane Projesi</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/6b6b6b/ffffff?text=CALISMA3-TEKRAR2');"><div class="work-card-text">Rusya Malikane Projeleri</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/7d7d7d/ffffff?text=CALISMA4-TEKRAR2');"><div class="work-card-text">Bodrum İnce İşler Şefliği</div></div>
-                    <div class="work-card" style="background-image: url('https://placehold.co/350x250/8c8c8c/ffffff?text=CALISMA5-TEKRAR2');"><div class="work-card-text">İnegöl Konut Projeleri</div></div>
+                    <!-- SET 3 (Döngü için aynı isimler kullanıldı ve URL'ler güncellendi) -->
+                    <div class="work-card" style="background-image: url('calisma1.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma2.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma3.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma4.png');"></div>
+                    <div class="work-card" style="background-image: url('calisma5.png');"></div>
                     
                 </div>
             </div>
-            <p class="text-sm text-gray-600 mt-4">Bu kayan galeri, mimari projelerinizden bazılarını sergilemektedir. Farenizi üzerine getirdiğinizde otomatik kaydırma durur.</p>
+            <!-- Bu kısım güncellendi -->
+            <p class="text-sm text-gray-600 mt-4">Bu kayan galeri çalışmalarımdan bazılarını size sunmaktadır. Farenizi üzerine getirdiğinizde otomatik kaydırma durur.</p>
         </section>
 
         <!-- 4. DENEYİM (Experience Section - Minimalist Design) -->
@@ -464,9 +455,15 @@
                             <label for="email" class="block text-sm font-medium text-gray-700">E-posta Adresiniz</label>
                             <input type="email" name="email" id="email" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="ornek@mail.com">
                         </div>
+                        <!-- YENİ: Cep Telefonu Alanı Eklendi -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Cep Telefonu Numaranız</label>
+                            <input type="tel" name="phone" id="phone" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="(5XX) XXX XX XX">
+                        </div>
+                        <!-- SON: Cep Telefonu Alanı Eklendi -->
                         <div>
                             <label for="message" class="block text-sm font-medium text-gray-700">Mesajınız</label>
-                            <textarea name="message" id="message" rows="4" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Proje detaylarını buraya yazabilirsiniz..."></textarea>
+                            <textarea name="message" id="message" rows="4" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Bir fikir, iş birliği veya sadece 'merhaba' demek için..."></textarea>
                         </div>
                         <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
                             Mesajı Gönder
