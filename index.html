@@ -21,7 +21,8 @@
             100% { transform: translateY(0) rotate(-3deg); opacity: 1; }
         }
         @keyframes slideInRight {
-            0% { transform: translateX(100vw); opacity: 0; }
+            /* Başlangıç (150vw: ekran dışı) ve Bitiş (0: ekran içi) değerlerini tanımla */
+            0% { transform: translateX(150vw); opacity: 0; }
             100% { transform: translateX(0); opacity: 1; }
         }
 
@@ -29,15 +30,15 @@
         .initial-image-state {
             transform: translateY(-100vh) rotate(-10deg);
             opacity: 0;
-            transition: transform 0.3s ease-in-out; 
         }
         .initial-text-state {
-            /* Metnin başlangıçta ekranın sağında olmasını sağlar */
-            transform: translateX(100vw);
+            /* Metnin başlangıçta ekranın sağında olmasını sağlar (Kesin Çıkış) */
+            transform: translateX(150vw);
             opacity: 0;
         }
 
         /* Animasyonlu Sınıflar */
+        /* Animasyon bittiğinde final durumunda kalır (forwards) */
         .animate-dropIn {
             animation: dropIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
@@ -63,8 +64,8 @@
 
         /* Image and Text Styling */
         .animated-image-container {
+            /* Animasyon bittikten sonra hover efekti devreye girer */
             transition: transform 0.3s ease-in-out;
-            /* Animasyon bittiğinde bu stiller korunur ve kaydırma efekti başlar */
         }
         .animated-image-container:hover {
              transform: rotate(0deg) scale(1.03); 
@@ -74,8 +75,6 @@
             z-index: 10; 
             position: relative; 
             margin-left: -5rem; 
-            /* Kaydırma efekti için gerekli transition ekleniyor */
-            transition: transform 0.1s linear;
         }
         
         @media (max-width: 768px) {
@@ -212,7 +211,7 @@
                 <!-- Image Column (Left) -->
                 <div class="w-full md:w-1/2 flex justify-center md:justify-end mb-8 md:mb-0">
                     <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
-                    <div id="hero-image" class="animated-image-container initial-image-state">
+                    <div id="hero-image" class="animated-image-container initial-image-state animate-dropIn">
                         <img src="https://raw.githubusercontent.com/username/repo/main/selimhan_profile.png"
                              alt="Selimhan Saldamlı Minimalist Portre"
                              class="shadow-xl object-cover rounded-xl"
@@ -223,7 +222,7 @@
                 <!-- Text Column (Right) - Text now moves parallelly to the left and slightly over the image -->
                 <div class="w-full md:w-1/2 md:pl-16 text-center md:text-left">
                      <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
-                    <div id="hero-text" class="animated-text-container initial-text-state">
+                    <div id="hero-text" class="animated-text-container initial-text-state animate-slideInRight">
                         <h1 class="text-7xl sm:text-8xl lg:text-9xl font-extrabold leading-none text-gray-900 mb-6">
                             Selimhan<br>Saldamlı
                         </h1>
@@ -489,114 +488,20 @@
 
     <!-- JavaScript for Dynamic Functions -->
     <script>
-        const heroSection = document.getElementById('anasayfa');
         const heroImage = document.getElementById('hero-image');
         const heroText = document.getElementById('hero-text');
         const gallery = document.getElementById('work-gallery');
 
         let scrollInterval;
-        const scrollSpeed = 1.5; // Çalışmalar: Hız 0.5'ten 1.5'e çıkarıldı (3 kat hızlandı)
-        let animationCompleted = false; // Animasyonun bir kez çalışıp çalışmadığını kontrol eden bayrak
+        const scrollSpeed = 1.5; 
 
-        // Başlangıç Transform değerleri (CSS animasyonunun bittiği son durum)
-        const FINAL_IMAGE_ROTATE = -3; // degrees
-        const INITIAL_IMAGE_Y_VH = -100; // vh (CSS başlangıç pozisyonu)
-        const INITIAL_IMAGE_R_DEG = -10; // degrees (CSS başlangıç pozisyonu)
-        const INITIAL_TEXT_X_VW = 100; // vw (CSS başlangıç pozisyonu)
-
-        // Ana sayfanın yüksekliği
-        let heroHeight = 0;
-
-        // 1. Ana Sayfa Animasyonunu Tetikleyen Fonksiyon (İlk Kez Çalışma)
-        function triggerHeroAnimation(isIntersecting) {
-            if (isIntersecting && !animationCompleted) {
-                // Animasyonu tetikle
-                heroImage.classList.remove('initial-image-state');
-                heroText.classList.remove('initial-text-state');
-
-                void heroImage.offsetWidth; 
-                void heroText.offsetWidth;
-
-                heroImage.classList.add('animate-dropIn');
-                heroText.classList.add('animate-slideInRight');
-
-                setTimeout(() => {
-                    animationCompleted = true;
-                    // Animasyon bittiğinde JS kaydırma efektini başlat
-                    document.addEventListener('scroll', handleScrollEffect);
-                    heroHeight = heroSection.offsetHeight;
-                    
-                    // Animasyon bittiğinde, hover efektinin çalışması için 
-                    // animasyon sınıflarını kaldırmak ve son durumu stil olarak korumak gerekir.
-                    // Bu, CSS'teki `forwards` ile sağlanır, ancak hover'ı kolaylaştırmak için
-                    // transition kaldırıldı (CSS'te var).
-                }, 2000); 
-                
-                heroObserver.unobserve(heroSection);
-            }
-        }
-        
-        // 2. Sayfayı Kaydırdıkça Geri Dönme/Sarılma Efekti (Paralaks benzeri)
-        function handleScrollEffect() {
-            if (!animationCompleted) return;
-
-            const scrollY = window.scrollY;
-            const scrollRatio = Math.min(scrollY / heroHeight, 1); // 0.0'dan 1.0'a gider
-            
-            // Görsel Geri Dönüşü: FINAL_STATE -> INITIAL_STATE
-            // Animasyonun son durumu (Y=0, R=-3) -> Başlangıç durumu (Y=-100, R=-10)
-            const imgY = 0 + (INITIAL_IMAGE_Y_VH * scrollRatio); 
-            const imgR = FINAL_IMAGE_ROTATE + ((INITIAL_IMAGE_R_DEG - FINAL_IMAGE_ROTATE) * scrollRatio);
-
-            // Metin Geri Dönüşü: FINAL_STATE -> INITIAL_STATE
-            // Animasyonun son durumu (X=0) -> Başlangıç durumu (X=100)
-            const textX = 0 + (INITIAL_TEXT_X_VW * scrollRatio); 
-
-            // Değerleri uygula
-            heroImage.style.transform = `translateY(${imgY}vh) rotate(${imgR}deg)`;
-            heroText.style.transform = `translateX(${textX}vw)`;
-        }
-
-
-        // Intersection Observer ile animasyonu izle (Sadece ilk kez tetiklemek için)
-        const heroObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                triggerHeroAnimation(entry.isIntersecting);
-            });
-        }, {
-            threshold: 0.1 
-        });
-
-        // 3. Yatay Kaydırma (Sonsuz Döngü Hissi)
-        function startScrolling() {
-            if (scrollInterval) return;
-
-            // Galeri içeriğinin piksel cinsinden toplam genişliği
-            const totalContentWidth = gallery.scrollWidth / 3;
-
-            const scrollStep = () => {
-                // Sağa doğru kaydır
-                gallery.scrollLeft += scrollSpeed;
-
-                // Eğer kaydırma çubuğu ilk setin sonuna ulaştıysa (döngü noktası)
-                if (gallery.scrollLeft >= totalContentWidth) {
-                    gallery.scrollLeft -= totalContentWidth;
-                }
-            };
-
-            scrollInterval = setInterval(scrollStep, 1000 / 60);
-        }
-
-        function stopScrolling() {
-            clearInterval(scrollInterval);
-            scrollInterval = null;
-        }
-
-        // Event Listener'lar
+        // 1. Ana Sayfa Animasyonunu Tetikleme (Sadece Bir Kez)
+        // DOM yüklendiğinde animasyon sınıfları çalışmaya başlar
         document.addEventListener('DOMContentLoaded', () => {
-             // 1. Ana Sayfa Observer'ı Başlat
-             heroObserver.observe(heroSection);
-             
+             // Animasyon sınıfları HTML'de doğrudan tanımlandığı için, 
+             // DOM yüklendiğinde otomatik olarak çalışacaktır. 
+             // Sadece ilk görünümü tetiklemek için kullanılan eski observer kodları silinmiştir.
+
              // 2. Kaydırma Galerisi Event'ları
              const galleryContainer = document.getElementById('work-gallery-container');
              galleryContainer.addEventListener('mouseenter', stopScrolling);
@@ -624,16 +529,30 @@
              });
         });
         
-        // İlk yüklemede animasyonu manuel olarak bir kez tetikle
-        window.addEventListener('load', () => {
-             if (heroObserver && heroSection) {
-                 // İlk görünümü kontrol et
-                 const rect = heroSection.getBoundingClientRect();
-                 if (rect.top >= 0 && rect.top <= window.innerHeight && !animationCompleted) {
-                    triggerHeroAnimation(true);
-                 }
-             }
-        });
+        // 3. Yatay Kaydırma (Sonsuz Döngü Hissi)
+        function startScrolling() {
+            if (scrollInterval) return;
+
+            // Galeri içeriğinin piksel cinsinden toplam genişliği
+            const totalContentWidth = gallery.scrollWidth / 3;
+
+            const scrollStep = () => {
+                // Sağa doğru kaydır
+                gallery.scrollLeft += scrollSpeed;
+
+                // Eğer kaydırma çubuğu ilk setin sonuna ulaştıysa (döngü noktası)
+                if (gallery.scrollLeft >= totalContentWidth) {
+                    gallery.scrollLeft -= totalContentWidth;
+                }
+            };
+
+            scrollInterval = setInterval(scrollStep, 1000 / 60);
+        }
+
+        function stopScrolling() {
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+        }
 
     </script>
 </body>
