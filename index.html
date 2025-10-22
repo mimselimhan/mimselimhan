@@ -6,6 +6,8 @@
     <title>Selimhan Saldamlı - Kişisel Portfolyo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- YENİ: Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Inter font for better typography */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
@@ -127,44 +129,18 @@
 <body class="text-gray-800">
 
     <!-- Firebase Configuration and Auth (Mandatory Block for Compatibility) -->
-    <script type="module">
-        // Bu blok, Canvas ortamının gerektirdiği Firebase ayarlarıdır. 
-        // Şimdilik statik bir HTML olduğu için Firestore kullanılmamaktadır.
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global değişkenleri kullanma
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-
-        if (Object.keys(firebaseConfig).length > 0) {
-            try {
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
-                
-                // Oturum açma
-                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                if (initialAuthToken) {
-                    signInWithCustomToken(auth, initialAuthToken).catch(error => console.error("Firebase Custom Token Sign-In Error:", error));
-                } else {
-                    signInAnonymously(auth).catch(error => console.error("Firebase Anonymous Sign-In Error:", error));
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        console.log("Kullanıcı kimliği:", user.uid);
-                    } else {
-                        console.log("Kullanıcı çıkış yaptı veya anonim.");
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase başlatılırken hata oluştu:", error);
-            }
-        } else {
-            console.log("Firebase konfigürasyonu bulunamadı.");
+    <!-- GÜNCELLEME: Firebase'den Supabase'e geçildi -->
+    <script>
+        // --- YENİ: Supabase Kurulumu ---
+        const SUPABASE_URL = 'https://zkwyixrwgkulhwkfqrmu.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprd3lpeHJ3Z2t1bGh3a2Zxcm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTU5MjYsImV4cCI6MjA3NjczMTkyNn0.7Zyu4MF62UV-Vrc0YW9dn80XweDtoQxi6mZXw-PtnPE';
+        let supabase;
+        try {
+            // 'supabase' global nesnesi Supabase CDN'den gelir
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("Supabase istemcisi başarıyla başlatıldı.");
+        } catch (e) {
+            console.error("Supabase başlatılamadı:", e);
         }
     </script>
 
@@ -448,7 +424,8 @@
 
                 <!-- İletişim Formu -->
                 <div class="bg-white p-8 rounded-xl border border-gray-100">
-                    <form action="#" method="POST" class="space-y-6">
+                    <!-- GÜNCELLEME: Form 'action' ve 'method' kaldırıldı, 'id' eklendi -->
+                    <form id="contact-form" class="space-y-6">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Adınız Soyadınız</label>
                             <input type="text" name="name" id="name" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Selimhan Saldamlı">
@@ -467,9 +444,12 @@
                             <label for="message" class="block text-sm font-medium text-gray-700">Mesajınız</label>
                             <textarea name="message" id="message" rows="4" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Bir fikir, iş birliği veya sadece 'merhaba' demek için..."></textarea>
                         </div>
-                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
+                        <!-- GÜNCELLEME: Butona 'id' eklendi -->
+                        <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
                             Mesajı Gönder
                         </button>
+                        <!-- YENİ: Form durumu için mesaj alanı -->
+                        <div id="form-status" class="text-center text-sm mt-4"></div>
                     </form>
                 </div>
 
@@ -526,6 +506,72 @@
                      }
                  });
              });
+
+             // --- YENİ: Supabase Form Gönderme Mantığı ---
+             const contactForm = document.getElementById('contact-form');
+             const formStatus = document.getElementById('form-status');
+             const submitButton = document.getElementById('submit-button');
+
+             // Supabase objesinin yüklendiğinden emin ol
+             if (contactForm && typeof supabase !== 'undefined' && supabase) {
+                contactForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    // Butonu devre dışı bırak ve "Gönderiliyor..." yaz
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Gönderiliyor...';
+                    formStatus.textContent = '';
+                    formStatus.className = 'text-center text-sm mt-4';
+
+                    // Form verilerini al
+                    const formData = new FormData(contactForm);
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    const phone = formData.get('phone');
+                    const message = formData.get('message');
+
+                    try {
+                        // Supabase'e gönder
+                        // DİKKAT: 'messages' adında bir tablo oluşturmanız gerekir.
+                        const { data, error } = await supabase
+                            .from('messages') // Tablo adı
+                            .insert([
+                                { 
+                                    name: name, 
+                                    email: email, 
+                                    phone: phone, 
+                                    message: message 
+                                }
+                            ]);
+
+                        if (error) {
+                            throw error; // Hata varsa yakala
+                        }
+
+                        // Başarılı
+                        formStatus.textContent = 'Mesajınız başarıyla gönderildi!';
+                        formStatus.classList.add('text-green-600');
+                        contactForm.reset(); // Formu temizle
+
+                    } catch (error) {
+                        // Hata
+                        console.error('Mesaj gönderme hatası:', error.message);
+                        formStatus.textContent = 'Bir hata oluştu: ' + error.message;
+                        formStatus.classList.add('text-red-600');
+                    } finally {
+                        // Butonu tekrar aktif et
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Mesajı Gönder';
+                    }
+                });
+             } else if (typeof supabase === 'undefined' || !supabase) {
+                console.error("Supabase istemcisi yüklenemedi, form gönderimi devre dışı.");
+                if(formStatus) {
+                    formStatus.textContent = "İletişim formu geçici olarak devre dışıdır.";
+                    formStatus.classList.add('text-red-600');
+                }
+             }
+             // --- YENİ KOD SONU ---
         });
         
         // 3. Yatay Kaydırma (Sonsuz Döngü Hissi)
@@ -556,3 +602,4 @@
     </script>
 </body>
 </html>
+
