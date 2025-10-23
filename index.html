@@ -11,6 +11,10 @@
     <style>
         /* Inter font for better typography */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        /* YENİ: 'Vantrend' fontuna benzemesi için 'Poiret One' eklendi */
+        /* GÜNCELLENDİ: 'Poiret One' (kalınlaştırılamıyor) yerine 'Raleway' (kalınlaştırılabilir) eklendi */
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7fafc; 
@@ -60,6 +64,13 @@
             padding-bottom: 0.5rem;
         }
 
+        /* YENİ: Başlık font sınıfı */
+        /* GÜNCELLENDİ: Font ailesi ve kalınlık eklendi */
+        .font-title {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 800; /* Extra-bold kalınlık */
+        }
+
         #anasayfa {
             min-height: 100vh;
         }
@@ -76,13 +87,15 @@
         .animated-text-container {
             z-index: 10; 
             position: relative; 
-            margin-left: -5rem; 
+            /* GÜNCELLENDİ: Fotoğrafın üzerine çıkmaması için negatif margin kaldırıldı */
+            margin-left: 0; 
         }
         
         @media (max-width: 768px) {
             .animated-text-container {
                 margin-left: 0;
-                margin-top: -3rem;
+                /* GÜNCELLENDİ: Fotoğrafın üzerine çıkmaması için negatif margin-top, pozitif bir değere (veya 0'a) güncellendi */
+                margin-top: 1.5rem; /* Üst üste binmeyi engellemek için pozitif bir boşluk */
             }
         }
 
@@ -194,7 +207,9 @@
                 <div class="w-full md:w-1/2 md:pl-16 text-center md:text-left">
                      <!-- Animasyon başlangıcı için initial-state sınıfı eklendi -->
                     <div id="hero-text" class="animated-text-container initial-text-state animate-slideInRight">
-                        <h1 class="text-7xl sm:text-8xl lg:text-9xl font-extrabold leading-none text-gray-900 mb-6">
+                        <!-- GÜNCELLENDİ: Yazı boyutu küçültüldü -->
+                        <!-- GÜNCELLENDİ: font-title sınıfı eklendi ve 'font-extrabold' kaldırıldı -->
+                        <h1 class="text-6xl sm:text-7xl lg:text-8xl leading-none text-gray-900 mb-6 font-title">
                             Selimhan<br>Saldamlı
                         </h1>
                         <a href="#calismalar" class="text-xl font-bold text-blue-600 hover:text-blue-800 transition duration-300">
@@ -606,6 +621,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
